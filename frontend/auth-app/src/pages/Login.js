@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -76,6 +77,8 @@ function Login() {
         </button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
+      <Link to='/Hi'>Go to Hi</Link>
+    
     </div>
   );
 }

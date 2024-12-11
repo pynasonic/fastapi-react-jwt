@@ -9,6 +9,8 @@ class User(Base):
     username        = Column(String, unique=True, index=True)
     email           = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    primary_group_id= Column(Integer)
+    primary_role_id = Column(Integer)
     group_id        = Column(ARRAY(Integer), nullable=True)
     role_id         = Column(ARRAY(Integer), nullable=True)
     status          = Column(String)
@@ -21,4 +23,5 @@ User.metadata.create_all(bind=engine)
 class UserCreate(BaseModel):
     username: str
     password: str
-    group_id: list[int] = []
+    primary_group_id: int
+    primary_role_id: int

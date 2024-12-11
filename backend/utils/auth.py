@@ -1,5 +1,5 @@
 # Create access token
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException,status
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
@@ -43,9 +43,25 @@ def verify_token(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("u_name")
-        print(username)
         if username is None:
             raise HTTPException(status_code=403, detail="Token is invalid or expired")
         return payload
     except JWTError:
         raise HTTPException(status_code=403, detail="Token is invalid or expired")
+
+
+def get_payload_from_token(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        group_id = payload.get("u_primary_group_id")
+        if group_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Group ID not found in token"
+            )
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token is invalid or expired"
+        )

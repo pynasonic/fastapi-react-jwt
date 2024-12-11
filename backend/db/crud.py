@@ -9,7 +9,12 @@ def get_user_by_username(_db: Session, username: str):
 
 def create_user(_db: Session, user: models.UserCreate):
     hashed_password = u_hash.hash_password(user.password)
-    db_user = models.User(username=user.username, hashed_password=hashed_password)
+    db_user = models.User(
+        username=user.username, 
+        hashed_password=hashed_password,
+        primary_group_id = user.primary_group_id,
+        primary_role_id  = user.primary_role_id
+        )
     _db.add(db_user)
     _db.commit()
     return "complete"

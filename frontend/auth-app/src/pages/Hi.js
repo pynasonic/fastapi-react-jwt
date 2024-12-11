@@ -1,44 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 
 function Hi() {
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = localStorage.getItem('token');
-      console.log(token)
-      if (!token) {
-        navigate('/login');
-        return;
-      }
+  const fetchAllUsers = (e) => {
+    e.preventDefault(); // Prevent default link behavior
 
-      try {
-        const response = await fetch('http://localhost:8000/verify-token', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data)
-          const username = data.u_name; // Access the 'sub' field (or the field you store the username in)
-          setMessage(`Hi ${data.u_name}!`);
-        } else {
-          navigate('/login');
+    fetch('http://localhost:8000/samegid', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`, // Send token to backend
+      },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch users');
         }
-      } catch (error) {
-        navigate('/login');
-      }
-    };
+        return res.json();
+      })
+      .then((data) => setUsers(data)) // Save the users in the state
+      .catch((err) => console.error('Error fetching users:', err));
+  };
 
-    checkLoginStatus();
-  }, [navigate]);
-
-  return <div>{message || 'Loading...'}</div>;
+  return (
+    <div>
+      <a href="/allusers" onClick={fetchAllUsers}>All Users List</a>
+      <div>
+        {users.length > 0 ? (
+          <ul>
+            {users.map((user) => (
+              <li key={user.id}>
+                {user.username} | {user.email} | {user.primary_group_id} | {user.note} | {user.created_at}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No users found.</p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default Hi;
